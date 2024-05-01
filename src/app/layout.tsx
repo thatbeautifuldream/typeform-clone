@@ -3,6 +3,7 @@ import { Questrial } from "next/font/google";
 import Providers from "@/components/providers/";
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
+import Nav from "@/components/nav";
 
 const questrial = Questrial({ subsets: ["latin"], weight: "400" });
 
@@ -26,7 +27,10 @@ export default function RootLayout({
       >
         <Providers>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl">{children}</div>
+            <div className="mx-auto max-w-3xl">
+              <Nav />
+              {children}
+            </div>
           </div>
         </Providers>
       </body>
