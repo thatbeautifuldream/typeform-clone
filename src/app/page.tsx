@@ -1,3 +1,4 @@
+import Footer from "@/components/footer";
 import Nav from "@/components/nav";
 
 export default async function Home() {
@@ -6,6 +7,7 @@ export default async function Home() {
   return (
     <main>
       <Nav />
+      <Footer />
     </main>
   );
 }
