@@ -3,7 +3,6 @@ import { Questrial } from "next/font/google";
 import Providers from "@/components/providers/";
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
-import Nav from "@/components/nav";
 
 const questrial = Questrial({ subsets: ["latin"], weight: "400" });
 
