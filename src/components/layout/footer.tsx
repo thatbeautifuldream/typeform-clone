@@ -1,8 +1,8 @@
 "use client";
 
 import { Disclosure } from "@headlessui/react";
-import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -14,12 +14,13 @@ export default function Footer() {
               Created by Milind Mishra
             </div>
             <div className="flex items-center">
-              <Button
-                className="text-secondary-foreground/50"
-                variant="outline"
+              <Link
+                className="flex text-secondary-foreground/50 hover:text-secondary-foreground/75  hover:underline  hover:underline-offset-4 transition-colors"
+                href="https://milindmishra.com"
+                target="_blank"
               >
-                Portfolio <ArrowUpRight size={16} />
-              </Button>
+                Portfolio <ArrowUpRight size={12} />
+              </Link>
             </div>
           </div>
         </div>

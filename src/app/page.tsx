@@ -1,5 +1,6 @@
-import Nav from "@/components/nav";
-import Footer from "@/components/footer";
+import Nav from "@/components/layout/nav";
+import Footer from "@/components/layout/footer";
+import Typeform from "@/components/form/typeform";
 
 export default async function Home() {
   // Simulate a delay
@@ -7,6 +8,7 @@ export default async function Home() {
   return (
     <main>
       <Nav />
+      <Typeform />
       <Footer />
     </main>
   );
