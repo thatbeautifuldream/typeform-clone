@@ -27,10 +27,7 @@ export default function RootLayout({
       >
         <Providers>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl">
-              <Nav />
-              {children}
-            </div>
+            <div className="mx-auto max-w-3xl">{children}</div>
           </div>
         </Providers>
       </body>
