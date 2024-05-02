@@ -1,10 +1,22 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Nav from "@/components/layout/nav";
 import Footer from "@/components/layout/footer";
+import Loader from "@/components/layout/loader";
 import Typeform from "@/components/form/typeform";
 
-export default async function Home() {
-  // Simulate a delay
-  await new Promise((resolve) => setTimeout(resolve, 2500));
+export default function Home() {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+  }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <main>
       <Nav />
