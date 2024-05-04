@@ -41,6 +41,11 @@ export default function Typeform() {
     },
   });
 
+  interface Answer {
+    id: number;
+    value: string;
+  }
+
   const questions = [
     {
       id: 1,
@@ -88,9 +93,9 @@ export default function Typeform() {
         "Structured approach to growth",
         "Build a growth team",
       ],
-      condition: (answers) =>
+      condition: (answers: Answer[]) =>
         answers.find((a) => a.id === 4) &&
-        answers.find((a) => a.id === 4).value !== "Founder or CXO",
+        answers.find((a) => a.id === 4)?.value !== "Founder or CXO",
       maxSelect: 2,
       isRequired: true,
     },
@@ -103,9 +108,9 @@ export default function Typeform() {
         "Build a growth team",
         "Connect with like minded people",
       ],
-      condition: (answers) =>
+      condition: (answers: Answer[]) =>
         answers.find((a) => a.id === 4) &&
-        answers.find((a) => a.id === 4).value === "Founder or CXO",
+        answers.find((a) => a.id === 4)?.value === "Founder or CXO",
       maxSelect: 2,
       isRequired: true,
     },

@@ -11,7 +11,7 @@ const MaterialInput = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           className={cn(
-            "peer block w-full border-0 bg-background py-1.5 text-foreground placeholder:text-foreground/50 focus:outline-none sm:text-xl sm:leading-6",
+            "peer block w-full border-0 bg-background py-1.5 text-foreground placeholder:text-foreground/50 focus:outline-none sm:text-2xl sm:leading-6",
             className,
           )}
           ref={ref}
