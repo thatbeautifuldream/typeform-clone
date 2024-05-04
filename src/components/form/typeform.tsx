@@ -46,7 +46,6 @@ export default function Typeform() {
       id: 1,
       type: "text",
       text: "What is your first name?",
-      placeholder: "Enter your first name",
       isRequired: true,
     },
     {
@@ -165,8 +164,11 @@ export default function Typeform() {
                 <p className="text-gray-500">{questions[0].subText}</p>
                 <FormControl>
                   <Input
-                    className="text-lg"
-                    placeholder={questions[0].placeholder}
+                    placeholder={
+                      questions[0].placeholder
+                        ? questions[0].placeholder
+                        : "Type your answer here..."
+                    }
                     {...field}
                   />
                 </FormControl>
@@ -179,7 +181,7 @@ export default function Typeform() {
             <Button type="submit" className="text-white font-bold">
               {questions[0].isLastQuestion ? "Submit" : "OK"}
             </Button>
-            <p className="text-foreground/50 text-sm">
+            <p className="text-foreground text-xs">
               press <span className="font-semibold leading-none">Enter ↵</span>
             </p>
           </div>
