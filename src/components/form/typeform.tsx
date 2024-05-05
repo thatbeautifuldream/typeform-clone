@@ -18,6 +18,8 @@ import { MaterialInput as Input } from "@/components/form/material-input";
 import { cn } from "@/lib/utils";
 import { formSchema, type Inputs } from "@/lib/schema";
 import { useState } from "react";
+import { toast } from "../ui/use-toast";
+import { FORM_SUBMIT_URL } from "@/lib/constants";
 
 export default function Typeform() {
   const [previousStep, setPreviousStep] = useState(0);
@@ -26,6 +28,14 @@ export default function Typeform() {
 
   const form = useForm<Inputs>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      industry: "",
+      role: "",
+      email: "",
+      phone: "",
+    },
   });
 
   interface Answer {
@@ -89,7 +99,7 @@ export default function Typeform() {
       isRequired: true,
     },
     {
-      id: 7,
+      id: 5,
       type: "text",
       name: "email",
       text: "Email you'd like to register with?",
@@ -100,7 +110,7 @@ export default function Typeform() {
       isRequired: true,
     },
     {
-      id: 8,
+      id: 6,
       type: "text",
       name: "phone",
       text: "Your phone number",
@@ -112,11 +122,6 @@ export default function Typeform() {
     },
   ];
 
-  function processForm(values: Inputs) {
-    console.log(values);
-    form.reset();
-  }
-
   type FieldName = keyof Inputs;
 
   const next = async () => {
@@ -126,9 +131,6 @@ export default function Typeform() {
     });
     if (!output) return;
     if (currentStep < steps.length - 1) {
-      if (currentStep === steps.length - 2) {
-        await form.handleSubmit(processForm)();
-      }
       setPreviousStep(currentStep);
       setCurrentStep((step) => step + 1);
     }
@@ -141,12 +143,41 @@ export default function Typeform() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
+  async function submitForm(values: Inputs) {
+    if (currentStep === steps.length - 1) {
+      console.log({ values });
+      try {
+        const response = await fetch(FORM_SUBMIT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log("Data posted successfully:", data);
+        toast({
+          title: "Form submitted",
+          description:
+            "We've received your application. We'll get back to you soon.",
+        });
+      } catch (error) {
+        console.error("Error posting data:", error);
+        toast({
+          title: "Error submitting form",
+          description: "Please try again later.",
+        });
+      }
+    } else {
+      console.log({ values });
       next();
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -154,13 +185,13 @@ export default function Typeform() {
         <motion.div
           key={currentStep}
           className="w-full"
-          initial={{ y: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+          initial={{ y: delta >= 0 ? "100%" : "-100%", opacity: 0 }}
+          exit={{ y: delta >= 0 ? "-100%" : "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
           <form
-            onSubmit={form.handleSubmit(processForm)}
-            onKeyDown={handleKeyDown}
+            onSubmit={form.handleSubmit(submitForm)}
             className="space-y-8 w-full"
           >
             <FormField
@@ -168,8 +199,18 @@ export default function Typeform() {
               name={steps[currentStep].name as FieldName}
               render={({ field }) => (
                 <FormItem>
+                  {currentStep > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className=" font-bold"
+                      onClick={prev}
+                    >
+                      Back
+                    </Button>
+                  )}
                   <p className="text-foreground/50 text-sm">
-                    Question {steps[currentStep].id} of {steps.length}
+                    Step {steps[currentStep].id} of {steps.length}
                   </p>
                   <FormLabel className="text-2xl font-regular">
                     {steps[currentStep].text}
@@ -190,6 +231,7 @@ export default function Typeform() {
                           ? steps[currentStep].placeholder
                           : "Type your answer here..."
                       }
+                      autoFocus={true}
                       {...field}
                     />
                   </FormControl>
@@ -201,16 +243,20 @@ export default function Typeform() {
               )}
             />
             <div className="flex items-center gap-x-2 whitespace-normal">
-              <Button
-                type="submit"
-                className="text-white font-bold"
-                onClick={next}
-                // disabled={currentStep === steps.length - 1}
-              >
-                {steps[currentStep] === steps[steps.length - 1]
-                  ? "Submit"
-                  : "OK"}
-              </Button>
+              {currentStep < steps.length - 1 && (
+                <Button
+                  type="button"
+                  className="text-white font-bold"
+                  onClick={next}
+                >
+                  Next
+                </Button>
+              )}
+              {currentStep === steps.length - 1 && (
+                <Button type="submit" className="text-white font-bold">
+                  Submit
+                </Button>
+              )}
               <p className="text-foreground text-xs">
                 press{" "}
                 <span className="font-semibold leading-none">Enter ↵</span>

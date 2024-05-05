@@ -9,9 +9,10 @@ import Typeform from "@/components/form/typeform";
 export default function Home() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setLoading(false);
-    }, 2500);
+    }, 2000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (loading) {
