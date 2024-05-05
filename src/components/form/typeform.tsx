@@ -190,10 +190,11 @@ export default function Typeform() {
 
   return (
     <>
-      {/* Make the progress in the top of the page */}
+      {/* Progress Bar */}
       <div className="fixed top-0 left-0 right-0 z-10">
         <Progress currentStep={currentStep} totalSteps={steps.length} />
       </div>
+      {/* Form Container */}
       <div className="flex items-center justify-center w-full h-screen">
         <Form {...form}>
           <motion.div
@@ -207,6 +208,12 @@ export default function Typeform() {
             <form
               onSubmit={form.handleSubmit(submitForm)}
               className="space-y-8 w-full"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  next();
+                }
+              }}
             >
               <FormField
                 control={form.control}
@@ -258,9 +265,11 @@ export default function Typeform() {
                   </FormItem>
                 )}
               />
+              {/* Form Actions/Buttons */}
               <div className="flex items-center gap-x-2 whitespace-normal">
                 {currentStep < steps.length - 1 && (
                   <Button
+                    id="next"
                     type="button"
                     className="text-white font-bold"
                     onClick={next}
