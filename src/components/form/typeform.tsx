@@ -20,6 +20,7 @@ import { formSchema, type Inputs } from "@/lib/schema";
 import { useState } from "react";
 import { FORM_SUBMIT_URL } from "@/lib/constants";
 import { toast } from "sonner";
+import { Circle, LoaderCircle } from "lucide-react";
 
 export default function Typeform() {
   const [previousStep, setPreviousStep] = useState(0);
@@ -29,14 +30,6 @@ export default function Typeform() {
 
   const form = useForm<Inputs>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      industry: "",
-      role: "",
-      email: "",
-      phone: "",
-    },
   });
 
   interface Answer {
@@ -53,7 +46,6 @@ export default function Typeform() {
     description?: string;
     options?: string[];
     placeholder?: string;
-    validation?: "email" | "phone";
     condition?: (answers: Answer[]) => boolean | undefined;
     maxSelect?: number;
     isRequired?: boolean;
@@ -107,7 +99,6 @@ export default function Typeform() {
       subText:
         "We will keep all our communications with you through this email. Do check your spam inbox if you can't find our application received email.[ 🔴DEVELOPER NOTICE: Responses submitted to this form will be forwarded to the email you input here, for you to test data submissions.]",
       placeholder: "name@example.com",
-      validation: "email",
       isRequired: true,
     },
     {
@@ -118,7 +109,6 @@ export default function Typeform() {
       subText:
         "We won't call you unless it is absolutely required to process your application.",
       placeholder: "089621 8845",
-      validation: "phone",
       isRequired: true,
     },
   ];
@@ -164,6 +154,7 @@ export default function Typeform() {
         const data = await response.json();
         console.log("Data posted successfully:", data);
         toast.success("Form submitted successfully");
+        setIsSubmitted(true);
       } catch (error) {
         console.error("Error posting data:", error);
         toast.error("Error submitting the form. Please try again later.");
@@ -178,6 +169,11 @@ export default function Typeform() {
     return (
       <div className="flex items-center justify-center w-full h-screen">
         <div className="space-y-8 w-full">
+          <img
+            src="/assets/thankyou.gif"
+            alt="Completed"
+            className="w-1/2 w-50 mx-auto rounded-lg"
+          />
           <div className="text-center">
             <h1 className="text-3xl font-bold">
               Thank you for submitting the form
@@ -265,8 +261,19 @@ export default function Typeform() {
                 </Button>
               )}
               {currentStep === steps.length - 1 && (
-                <Button type="submit" className="text-white font-bold">
-                  Submit
+                <Button
+                  type="submit"
+                  className="text-white font-bold"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <>
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               )}
               <p className="text-foreground text-xs">
