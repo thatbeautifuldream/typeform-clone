@@ -18,12 +18,13 @@ import { MaterialInput as Input } from "@/components/form/material-input";
 import { cn } from "@/lib/utils";
 import { formSchema, type Inputs } from "@/lib/schema";
 import { useState } from "react";
-import { toast } from "../ui/use-toast";
 import { FORM_SUBMIT_URL } from "@/lib/constants";
+import { toast } from "sonner";
 
 export default function Typeform() {
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const delta = currentStep - previousStep;
 
   const form = useForm<Inputs>({
@@ -156,27 +157,38 @@ export default function Typeform() {
         });
 
         if (!response.ok) {
+          toast.error("Error submitting the form. Please try again.");
           throw new Error("Network response was not ok");
         }
 
         const data = await response.json();
         console.log("Data posted successfully:", data);
-        toast({
-          title: "Form submitted",
-          description:
-            "We've received your application. We'll get back to you soon.",
-        });
+        toast.success("Form submitted successfully");
       } catch (error) {
         console.error("Error posting data:", error);
-        toast({
-          title: "Error submitting form",
-          description: "Please try again later.",
-        });
+        toast.error("Error submitting the form. Please try again later.");
       }
     } else {
       console.log({ values });
       next();
     }
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <div className="space-y-8 w-full">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">
+              Thank you for submitting the form
+            </h1>
+            <p className="text-lg text-gray-600">
+              We will get back to you soon.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

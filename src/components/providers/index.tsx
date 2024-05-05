@@ -2,8 +2,8 @@
 
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
-import { Toaster } from "sonner";
 import { useTheme } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   const { theme } = useTheme();
@@ -23,7 +23,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
           options={{ showSpinner: false }}
           shallowRouting
         />
-        <Toaster richColors position="top-center" />
+        <Toaster position="top-center" richColors />
       </ThemeProvider>
     </>
   );
