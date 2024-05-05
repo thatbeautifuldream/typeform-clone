@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,52 +16,52 @@ import {
 } from "@/components/ui/form";
 import { MaterialInput as Input } from "@/components/form/material-input";
 import { cn } from "@/lib/utils";
+import { formSchema, type Inputs } from "@/lib/schema";
+import { useState } from "react";
 
 export default function Typeform() {
-  const formSchema = z.object({
-    firstName: z.string().min(2, "First name is too short"),
-    lastName: z.string().min(2, "Last name is too short"),
-    industry: z.string().min(2, "Industry is required"),
-    role: z.string().min(2, "Role is required"),
-    goals: z.array(z.string()).min(1, "At least one goal is required"),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().min(10, "Phone number is too short"),
-  });
+  const [previousStep, setPreviousStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
+  const delta = currentStep - previousStep;
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<Inputs>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      industry: "",
-      role: "",
-      goals: [],
-      email: "",
-      phone: "",
-    },
   });
 
-  interface Answer {
+  interface Step {
     id: number;
-    value: string;
+    type: "text" | "select" | "radio" | "radio-group";
+    name: string;
+    text: string;
+    subText?: string;
+    description?: string;
+    options?: string[];
+    placeholder?: string;
+    validation?: "email" | "phone";
+    condition?: (answers: Answer[]) => boolean | undefined;
+    maxSelect?: number;
+    isRequired?: boolean;
   }
 
-  const questions = [
+  const steps: Step[] = [
     {
       id: 1,
       type: "text",
+      name: "firstName",
       text: "What is your first name?",
       isRequired: true,
     },
     {
       id: 2,
       type: "text",
+      name: "lastName",
       text: `and what is your last name, ${form.getValues("firstName")}?`,
       isRequired: true,
     },
     {
       id: 3,
       type: "select",
+      name: "industry",
       text: "What industry is your company in?",
       subText: "We will personalize your learning experience accordingly",
       isRequired: true,
@@ -69,10 +69,11 @@ export default function Typeform() {
     {
       id: 4,
       type: "radio",
+      name: "role",
       text: "What is Your role in your company?",
       subText: "We want to understand how you spend your time right now.",
       description:
-        "[ 🔴DEVELOPER NOTICE: Options in the questions ahead depend on this question's response/s. ]",
+        "🔴 DEVELOPER NOTICE: Options in the questions ahead depend on this question's response/s.",
       options: [
         "Founder or CXO",
         "Product Team",
@@ -83,40 +84,9 @@ export default function Typeform() {
       isRequired: true,
     },
     {
-      id: 5,
-      type: "radio-group",
-      text: "{name}, what's your professional goal for the next 12 months?",
-      options: [
-        "Get hired",
-        "Get promoted",
-        "Connect with like minded people",
-        "Structured approach to growth",
-        "Build a growth team",
-      ],
-      condition: (answers: Answer[]) =>
-        answers.find((a) => a.id === 4) &&
-        answers.find((a) => a.id === 4)?.value !== "Founder or CXO",
-      maxSelect: 2,
-      isRequired: true,
-    },
-    {
-      id: 6,
-      type: "radio-group",
-      text: "{name}, what's your professional goal for the next 12 months?",
-      options: [
-        "Structured approach to growth",
-        "Build a growth team",
-        "Connect with like minded people",
-      ],
-      condition: (answers: Answer[]) =>
-        answers.find((a) => a.id === 4) &&
-        answers.find((a) => a.id === 4)?.value === "Founder or CXO",
-      maxSelect: 2,
-      isRequired: true,
-    },
-    {
       id: 7,
       type: "text",
+      name: "email",
       text: "Email you'd like to register with?",
       subText:
         "We will keep all our communications with you through this email. Do check your spam inbox if you can't find our application received email.[ 🔴DEVELOPER NOTICE: Responses submitted to this form will be forwarded to the email you input here, for you to test data submissions.]",
@@ -127,70 +97,122 @@ export default function Typeform() {
     {
       id: 8,
       type: "text",
+      name: "phone",
       text: "Your phone number",
       subText:
         "We won't call you unless it is absolutely required to process your application.",
       placeholder: "089621 8845",
       validation: "phone",
-      isLastQuestion: true,
       isRequired: true,
     },
   ];
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log({ values });
+  function processForm(values: Inputs) {
+    console.log(values);
+    form.reset();
   }
+
+  type FieldName = keyof Inputs;
+
+  const next = async () => {
+    const field = steps[currentStep].name as FieldName;
+    const output = await form.trigger(field as FieldName, {
+      shouldFocus: true,
+    });
+    if (!output) return;
+    if (currentStep < steps.length - 1) {
+      if (currentStep === steps.length - 2) {
+        await form.handleSubmit(processForm)();
+      }
+      setPreviousStep(currentStep);
+      setCurrentStep((step) => step + 1);
+    }
+  };
+
+  const prev = () => {
+    if (currentStep > 0) {
+      setPreviousStep(currentStep);
+      setCurrentStep((step) => step - 1);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      next();
+    }
+  };
+
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-8 w-full"
+        <motion.div
+          key={currentStep}
+          className="w-full"
+          initial={{ y: delta >= 0 ? "50%" : "-50%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
-          <FormField
-            control={form.control}
-            name={"firstName"}
-            render={({ field }) => (
-              <FormItem>
-                <p className="text-foreground/50 text-sm">
-                  Question {questions[0].id} of {questions.length}
-                </p>
-                <FormLabel className="text-2xl font-regular">
-                  {questions[0].text}
-                  <span
-                    className={cn(
-                      "text-destructive font-bold",
-                      questions[0].isRequired ? "" : "hidden",
-                    )}
-                  >
-                    *
-                  </span>
-                </FormLabel>
-                <p className="text-gray-500">{questions[0].subText}</p>
-                <FormControl>
-                  <Input
-                    placeholder={
-                      questions[0].placeholder
-                        ? questions[0].placeholder
-                        : "Type your answer here..."
-                    }
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>{questions[0].description}</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex items-center gap-x-2 whitespace-normal">
-            <Button type="submit" className="text-white font-bold">
-              {questions[0].isLastQuestion ? "Submit" : "OK"}
-            </Button>
-            <p className="text-foreground text-xs">
-              press <span className="font-semibold leading-none">Enter ↵</span>
-            </p>
-          </div>
-        </form>
+          <form
+            onSubmit={form.handleSubmit(processForm)}
+            onKeyDown={handleKeyDown}
+            className="space-y-8 w-full"
+          >
+            <FormField
+              control={form.control}
+              name={steps[currentStep].name as FieldName}
+              render={({ field }) => (
+                <FormItem>
+                  <p className="text-foreground/50 text-sm">
+                    Question {steps[currentStep].id} of {steps.length}
+                  </p>
+                  <FormLabel className="text-2xl font-regular">
+                    {steps[currentStep].text}
+                    <span
+                      className={cn(
+                        "text-destructive font-bold",
+                        steps[currentStep].isRequired ? "" : "hidden",
+                      )}
+                    >
+                      *
+                    </span>
+                  </FormLabel>
+                  <p className="text-gray-500">{steps[currentStep].subText}</p>
+                  <FormControl>
+                    <Input
+                      placeholder={
+                        steps[currentStep].placeholder
+                          ? steps[currentStep].placeholder
+                          : "Type your answer here..."
+                      }
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {steps[currentStep].description}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex items-center gap-x-2 whitespace-normal">
+              <Button
+                type="submit"
+                className="text-white font-bold"
+                onClick={next}
+                // disabled={currentStep === steps.length - 1}
+              >
+                {steps[currentStep] === steps[steps.length - 1]
+                  ? "Submit"
+                  : "OK"}
+              </Button>
+              <p className="text-foreground text-xs">
+                press{" "}
+                <span className="font-semibold leading-none">Enter ↵</span>
+              </p>
+            </div>
+          </form>
+        </motion.div>
       </Form>
     </div>
   );
