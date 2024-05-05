@@ -28,6 +28,11 @@ export default function Typeform() {
     resolver: zodResolver(formSchema),
   });
 
+  interface Answer {
+    name: string;
+    value: string;
+  }
+
   interface Step {
     id: number;
     type: "text" | "select" | "radio" | "radio-group";
