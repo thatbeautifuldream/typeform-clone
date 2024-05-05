@@ -20,7 +20,8 @@ import { formSchema, type Inputs } from "@/lib/schema";
 import { useState } from "react";
 import { FORM_SUBMIT_URL } from "@/lib/constants";
 import { toast } from "sonner";
-import { Circle, LoaderCircle } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
+import Progress from "@/components/layout/progress";
 
 export default function Typeform() {
   const [previousStep, setPreviousStep] = useState(0);
@@ -188,102 +189,110 @@ export default function Typeform() {
   }
 
   return (
-    <div className="flex items-center justify-center w-full h-screen">
-      <Form {...form}>
-        <motion.div
-          key={currentStep}
-          className="w-full"
-          initial={{ y: delta >= 0 ? "100%" : "-100%", opacity: 0 }}
-          exit={{ y: delta >= 0 ? "-100%" : "100%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-        >
-          <form
-            onSubmit={form.handleSubmit(submitForm)}
-            className="space-y-8 w-full"
+    <>
+      {/* Make the progress in the top of the page */}
+      <div className="fixed top-0 left-0 right-0 z-10">
+        <Progress currentStep={currentStep} totalSteps={steps.length} />
+      </div>
+      <div className="flex items-center justify-center w-full h-screen">
+        <Form {...form}>
+          <motion.div
+            key={currentStep}
+            className="w-full"
+            initial={{ y: delta >= 0 ? "100%" : "-100%", opacity: 0 }}
+            exit={{ y: delta >= 0 ? "-100%" : "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <FormField
-              control={form.control}
-              name={steps[currentStep].name as FieldName}
-              render={({ field }) => (
-                <FormItem>
-                  {currentStep > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className=" font-bold"
-                      onClick={prev}
-                    >
-                      Back
-                    </Button>
-                  )}
-                  <p className="text-foreground/50 text-sm">
-                    Step {steps[currentStep].id} of {steps.length}
-                  </p>
-                  <FormLabel className="text-2xl font-regular">
-                    {steps[currentStep].text}
-                    <span
-                      className={cn(
-                        "text-destructive font-bold",
-                        steps[currentStep].isRequired ? "" : "hidden",
-                      )}
-                    >
-                      *
-                    </span>
-                  </FormLabel>
-                  <p className="text-gray-500">{steps[currentStep].subText}</p>
-                  <FormControl>
-                    <Input
-                      placeholder={
-                        steps[currentStep].placeholder
-                          ? steps[currentStep].placeholder
-                          : "Type your answer here..."
-                      }
-                      autoFocus={true}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {steps[currentStep].description}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex items-center gap-x-2 whitespace-normal">
-              {currentStep < steps.length - 1 && (
-                <Button
-                  type="button"
-                  className="text-white font-bold"
-                  onClick={next}
-                >
-                  Next
-                </Button>
-              )}
-              {currentStep === steps.length - 1 && (
-                <Button
-                  type="submit"
-                  className="text-white font-bold"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? (
-                    <>
-                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                      Please wait
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
-                </Button>
-              )}
-              <p className="text-foreground text-xs">
-                press{" "}
-                <span className="font-semibold leading-none">Enter ↵</span>
-              </p>
-            </div>
-          </form>
-        </motion.div>
-      </Form>
-    </div>
+            <form
+              onSubmit={form.handleSubmit(submitForm)}
+              className="space-y-8 w-full"
+            >
+              <FormField
+                control={form.control}
+                name={steps[currentStep].name as FieldName}
+                render={({ field }) => (
+                  <FormItem>
+                    {currentStep > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className=" font-bold"
+                        onClick={prev}
+                      >
+                        Back
+                      </Button>
+                    )}
+                    <p className="text-foreground/50 text-sm">
+                      Step {steps[currentStep].id} of {steps.length}
+                    </p>
+                    <FormLabel className="text-2xl font-regular">
+                      {steps[currentStep].text}
+                      <span
+                        className={cn(
+                          "text-destructive font-bold",
+                          steps[currentStep].isRequired ? "" : "hidden",
+                        )}
+                      >
+                        *
+                      </span>
+                    </FormLabel>
+                    <p className="text-gray-500">
+                      {steps[currentStep].subText}
+                    </p>
+                    <FormControl>
+                      <Input
+                        placeholder={
+                          steps[currentStep].placeholder
+                            ? steps[currentStep].placeholder
+                            : "Type your answer here..."
+                        }
+                        autoFocus={true}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {steps[currentStep].description}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex items-center gap-x-2 whitespace-normal">
+                {currentStep < steps.length - 1 && (
+                  <Button
+                    type="button"
+                    className="text-white font-bold"
+                    onClick={next}
+                  >
+                    Next
+                  </Button>
+                )}
+                {currentStep === steps.length - 1 && (
+                  <Button
+                    type="submit"
+                    className="text-white font-bold"
+                    disabled={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? (
+                      <>
+                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        Please wait
+                      </>
+                    ) : (
+                      "Submit"
+                    )}
+                  </Button>
+                )}
+                <p className="text-foreground text-xs">
+                  press{" "}
+                  <span className="font-semibold leading-none">Enter ↵</span>
+                </p>
+              </div>
+            </form>
+          </motion.div>
+        </Form>
+      </div>
+    </>
   );
 }
