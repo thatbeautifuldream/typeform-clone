@@ -209,9 +209,11 @@ export default function Typeform() {
               onSubmit={form.handleSubmit(submitForm)}
               className="space-y-8 w-full"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  next();
+                if (currentStep < steps.length - 1) {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    next();
+                  }
                 }
               }}
             >
