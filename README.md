@@ -1,5 +1,7 @@
 # Typeform Clone
 
+![Screen Recording 2024-05-06 at 11 46 15 AM](https://github.com/thatbeautifuldream/typeform-clone/assets/28717686/6688ef76-c1e2-46b7-84e9-77a74119ce18)
+
 This is a clone of Typeform. This project was built using `Next.js`, `Reack Hook Form`, `Zod`, `ShadCN UI`.
 
 ## Installation
