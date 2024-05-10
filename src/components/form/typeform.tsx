@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { MaterialInput as Input } from "@/components/form/material-input";
+import { MaterialInput as Input } from "@/components/inputs/material-input";
 import { cn } from "@/lib/utils";
 import { formSchema, type Inputs } from "@/lib/schema";
 import { useState } from "react";
@@ -137,7 +137,7 @@ export default function Typeform() {
 
   async function submitForm(values: Inputs) {
     if (currentStep === steps.length - 1) {
-      console.log({ values });
+      // console.log({ values });
       try {
         const response = await fetch(FORM_SUBMIT_URL, {
           method: "POST",
